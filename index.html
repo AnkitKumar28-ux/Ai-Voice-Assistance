@@ -1,0 +1,75 @@
+ Step 1: Frontend (HTML+JS)
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Assistant</title>
+</head>
+<body>
+    <h1>AI Voice Assistant</h1>
+    <button id="start-btn">Start Listening</button>
+    <p id="user-text"></p>
+    <p id="assistant-text"></p>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const userText = document.getElementById('user-text');
+        const assistantText = document.getElementById('assistant-text');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Your browser does not support Speech Recognition.");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            startBtn.addEventListener('click', () => recognition.start());
+
+            recognition.onresult = async (event) => {
+                const transcript = event.results[0][0].transcript;
+                userText.textContent = "You: " + transcript;
+
+                // Send user input to Java backend
+                const response = await fetch(http://localhost:8080/assistant?message=${encodeURIComponent(transcript)});
+                const data = await response.json();
+
+                assistantText.textContent = "Assistant: " + data.reply;
+
+                // Speak the response
+                const utterance = new SpeechSynthesisUtterance(data.reply);
+                window.speechSynthesis.speak(utterance);
+            };
+        }
+    </script>
+</body>
+</html>
+ Step 2: Backend (Java using sprint Boot)
+ import org.springframework.web.bind.annotation.*;
+
+@RestController
+@CrossOrigin(origins = "*")  // Allow frontend to access
+public class AssistantController {
+
+    @GetMapping("/assistant")
+    public Response getReply(@RequestParam String message) {
+        String reply = generateReply(message);
+        return new Response(reply);
+    }
+
+    private String generateReply(String message) {
+        message = message.toLowerCase();
+        if (message.contains("hello")) return "Hello! How can I help you?";
+        if (message.contains("time")) return "The current time is " + java.time.LocalTime.now().withNano(0);
+        if (message.contains("your name")) return "I am your Java AI assistant.";
+        return "Sorry, I didn't understand that.";
+    }
+
+    static class Response {
+        private String reply;
+        public Response(String reply) { this.reply = reply; }
+        public String getReply() { return reply; }
+        public void setReply(String reply) { this.reply = reply; }
+    }
+}
