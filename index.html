@@ -1,46 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Assistant</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Voice Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>AI Voice Assistant</h1>
-    <button id="start-btn">Start Listening</button>
-    <p id="user-text"></p>
-    <p id="assistant-text"></p>
+  <div class="container">
+    <h1>🤖 AI Voice Assistant</h1>
+    <div class="assistant">
+      <div class="circle" id="circle"></div>
+      <button id="talk">🎙️ Speak</button>
+      <p id="content">Click Speak and say something...</p>
+    </div>
+  </div>
 
-    <script>
-        const startBtn = document.getElementById('start-btn');
-        const userText = document.getElementById('user-text');
-        const assistantText = document.getElementById('assistant-text');
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Your browser does not support Speech Recognition.");
-        } else {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-
-            startBtn.addEventListener('click', () => recognition.start());
-
-            recognition.onresult = async (event) => {
-                const transcript = event.results[0][0].transcript;
-                userText.textContent = "You: " + transcript;
-
-                // Send user input to Java backend
-                const response = await fetch(http://localhost:8080/assistant?message=${encodeURIComponent(transcript)});
-                const data = await response.json();
-
-                assistantText.textContent = "Assistant: " + data.reply;
-
-                // Speak the response
-                const utterance = new SpeechSynthesisUtterance(data.reply);
-                window.speechSynthesis.speak(utterance);
-            };
-        }
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
